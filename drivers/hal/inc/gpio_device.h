@@ -1,0 +1,96 @@
+/************************************************************************************
+Copyright (c) 2023-2025 released WuXi Indie Microelectronics Ltd.     All rights reserved.
+
+WuXi Indie Microelectronics Ltd licenses to you the right to use, modify, copy and distribute
+Software only when embedded on a WuXi Indie Microelectronics Ltd's microcontroller or digital signal
+controller  that is integrated into your product or third party product
+
+SOFTWARE AND DOCUMENTATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND,
+EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION, ANY WARRANTY OF
+MERCHANTABILITY, TITLE, NON-INFRINGEMENT AND FITNESS FOR A PARTICULAR PURPOSE.
+IN NO EVENT SHALL WUXI INDIE MICROELECTRONICS LTD OR ITS LICENSORS BE LIABLE OR OBLIGATED UNDER
+CONTRACT, NEGLIGENCE, STRICT LIABILITY, CONTRIBUTION, BREACH OF WARRANTY, OR
+OTHER LEGAL EQUITABLE THEORY ANY DIRECT OR INDIRECT DAMAGES OR EXPENSES
+INCLUDING BUT NOT LIMITED TO ANY INCIDENTAL, SPECIAL, INDIRECT, PUNITIVE OR
+CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, COST OF PROCUREMENT OF
+SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
+(INCLUDING BUT NOT LIMITED TO ANY DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
+*************************************************************************************/
+
+#ifndef GPIO_DEVICE_H__
+#define GPIO_DEVICE_H__
+
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <rugbyHP.h>
+#include "errno.h"
+
+
+typedef enum{
+  GPIO_PORT_1 = 0U,
+  GPIO_PORT_2,
+  GPIO_PORT_3,
+  GPIO_PORT_4,
+  GPIO_PORT_5,
+  GPIO_PORT_6,
+  GPIO_PORT_7,
+  GPIO_PORT_8,
+  GPIO_PORT_9,
+  /* special for Debug below*/
+  GPIO_PORT_LINS,
+  GPIO_PORT_LINM,
+}GpioPort_t;
+
+
+typedef enum{
+  GPIO_DIR_INPUT  = 0U,
+  GPIO_DIR_OUTPUT,
+}GpioDir_t;
+
+/* 01: pull none, 00: pull up, 11: pull down, 10: pull up and down*/
+typedef enum{
+  GPIO_PULL_UP          = 0U,
+  GPIO_PULL_NONE        = 1U,
+  GPIO_PULL_DOWN        = 3U,
+}GpioPullMode_t;
+
+typedef enum{
+  GPIO_LOW = 0U,
+  GPIO_HIGH,
+}GpioSetState_t;
+
+typedef enum{
+  GPIO_MUX_GPIO = 0U,
+  GPIO_MUX_PWM,
+  GPIO_MUX_UART,
+}GpioMuxMode_t;
+
+
+typedef enum{
+  GPIO_PWM_CH1 = 0U,
+  GPIO_PWM_CH2,
+  GPIO_PWM_CH3,
+  GPIO_PWM_NONE,
+}GpioPWMchannel_t;
+
+/* 00: disable, 01: rising, 10: falling, 11: both */
+typedef enum{
+  GPIO_EDGE_NODE = 0U,
+  GPIO_EDGE_RISING,
+  GPIO_EDGE_FALLING,
+  GPIO_EDGE_BOTH,
+}GpioISREdge_t;
+
+
+typedef void (*gpio_cb_func_t)(void);
+
+
+void GPIO_Init(GpioPort_t port,GpioDir_t dir,GpioPullMode_t pullMode);
+void GPIO_RegisterIRQ(GpioPort_t port, GpioISREdge_t edge, gpio_cb_func_t callback);
+void GPIO_UnRegisterIRQ(GpioPort_t port);
+void GPIO_Set(GpioPort_t port, GpioSetState_t state);
+void GPIO_SetGPIOs(uint8_t portsMask, uint8_t value);
+uint8_t GPIO_Read(GpioPort_t port);
+
+#endif /* __GPIO_DEVICE_H__ */
