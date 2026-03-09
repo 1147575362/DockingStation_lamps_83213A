@@ -31,7 +31,7 @@
 #define ROOM_TEMPERATURE        (24)  /*Celsius degree*/
 
 /* ************************PWMs config ********************************/
-#define LED_NUM    (40U)
+#define LED_NUM    (24U)
 
 #if LED_NUM < 8U || LED_NUM > 40U
     #error LED_NUM MUST BE WITHIN 8-40!

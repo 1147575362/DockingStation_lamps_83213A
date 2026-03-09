@@ -85,8 +85,15 @@ void ApplTimerExpired(SoftTimer_t *timer)
             red = 0;green = 0; blue = 255;
         }
     }
-    
+
+    static uint8_t DoorSigMcu;
+    static uint8_t TouchIo;
+    DoorSigMcu = GPIO_Read(GPIO_PORT_LINS);
+    TouchIo = GPIO_Read(GPIO_PORT_1);
+
 }
+
+
 
 void APPL_TaskHandler(void)
 {
