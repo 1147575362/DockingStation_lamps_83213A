@@ -77,9 +77,9 @@ void PMU_EnterDeepSleepMode(void)
     CRGA_SFRS->MODULERSTREQ     |= MODULE_SOFT_RESET_PWM | MODULE_SOFT_RESET_ADC | MODULE_SOFT_RESET_BUCK;
     LINS_SFRS->CTRL.SLEEP       = 0U;
     LINM_SFRS->CTRL.SLEEP       = 0U;
-
-    PMUAPRE5V_SFRS->LINS.SWON             	= 0U;
     
+    PMUAPRE5V_SFRS->LINS.SWON             	= 0U;
+
     /* disbale temperature sensor when sleep */
     SAR_CTRL_SFRS->OT_CTRL_CFG.ADC_SAMP_OT_ENA = 0U;
     SAR_CTRL_SFRS->OT_CTRL_CFG.EN_OVERTEMP = 0U;

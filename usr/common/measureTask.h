@@ -6,12 +6,11 @@
 #include "systick_device.h"
 #include <taskManager.h>
 #include <adc_device.h>
-#include <hwcfg.h>
+#include "hwcfg.h"
 #include <colorMixingTask.h>
 #include <ledParamTables.h>
 
 #define INVALID_PARAM            (0x7FFFU)
-#define INVALID_VOLT             (0x7FFF)
 #define INVALID_TEMP             (-127)
 
 /*

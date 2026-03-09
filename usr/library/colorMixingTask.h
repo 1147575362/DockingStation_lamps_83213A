@@ -31,10 +31,6 @@ typedef enum{
   COLOR_MODE_sRGBL,
   COLOR_MODE_XYY,
   COLOR_MODE_LUV,
-  COLOR_MODE_ACCURATE_RGBL,
-  COLOR_MODE_ACCURATE_sRGBL,
-  COLOR_MODE_ACCURATE_XYY,
-  COLOR_MODE_ACCURATE_LUV,
   COLOR_MODE_XY_ABS_Y,
   COLOR_MODE_ABS_LUV,
   COLOR_MODE_sRGB_ABS_L,
@@ -83,7 +79,6 @@ typedef struct{
         uint16_t level;
       }CustomizedRGB;
   };
-  IntensityRatio_t iRatio; /*   intensity ratio for RGB*/
 }ColorParam_t;
 
 /*
@@ -126,55 +121,6 @@ uint8_t CLM_SetIntensityDegradation(uint8_t enable);
  *  @return 0U: disable degradation, 1U: enable degradation
  */
 uint8_t CLM_GetIntensityDegradation(void); 
-
-/*
- *  Set accurate color xyY output with calibration parameters
- *  @param [in] iRatio:0-255 for 100%-125% of max Intensity, for accurate calibrated color Intensity compensation, set all 0 for normal color control
- *  @param [in] temperature: -40-100 in 1C
- *  @param [in] x: 0-65535
- *  @param [in] y: 0-65535
- *  @param [in] Y: 0-100(1%-100%)
- *  @param [in] transitionTime: 0-65535ms
- *  @return 0:OK. others :FAIL
- */
-uint8_t CLM_SetAccurateXYY(LedNum_t ledIndex,IntensityRatio_t iRatio, ColorTemperature_t temperature, uint16_t x, uint16_t y, uint8_t Y, uint16_t transitionTime);
-
-/*
- *  Set accurate color L'u'v output with calibration parameters
- *  @param [in] iRatio:0-255 for 100%-125% of max Intensity, for accurate calibrated color Intensity compensation, set all 0 for normal color control
- *  @param [in] temperature: -40-100 in 1C
- *  @param [in] u': 0-65535
- *  @param [in] v': 0-65535
- *  @param [in] level: 0-100(1%-100%)
- *  @param [in] transitionTime: 0-65535ms
- *  @return 0:OK. others :FAIL
- */
-uint8_t CLM_SetAccurateLUV(LedNum_t ledIndex,IntensityRatio_t iRatio, ColorTemperature_t temperature, uint16_t u, uint16_t v, uint8_t level, uint16_t transitionTime);
-/*
- *  Set accurate color RGBL output with calibration parameters
- *  @param [in] iRatio:0-255 for 100%-125% of max Intensity, for accurate calibrated color Intensity compensation, set all 0 for normal color control
- *  @param [in] temperature: -40-100 in 1C
- *  @param [in] red: 0-255
- *  @param [in] green: 0-255
- *  @param [in] blue: 0-255
- *  @param [in] level: 0-100(1%-100%)
- *  @param [in] transitionTime: 0-65535ms
- *  @return 0:OK. others :FAIL
- */
-uint8_t CLM_SetAccurateRGBL(LedNum_t ledIndex,IntensityRatio_t iRatio, ColorTemperature_t temperature, uint8_t red, uint8_t green, uint8_t blue,uint8_t level, uint16_t transitionTime);
-
-/*
- *  Set Accurate sRGBL output
- *  @param [in] iRatio:0-255 for 100%-125% of max Intensity, for accurate calibrated color Intensity compensation, set all 0 for normal color control
- *  @param [in] temperatureR,G,B: -40-100 in 1C
- *  @param [in] red: 0-255
- *  @param [in] green: 0-255
- *  @param [in] blue: 0-255
- *  @param [in] level: 0-100
- *  @param [in] transitionTime: 0-65535ms
- *  @return 0:OK. others :FAIL
- */
-uint8_t CLM_SetAccurateSRGBL(LedNum_t ledIndex,IntensityRatio_t iRatio, ColorTemperature_t temperature, uint8_t red, uint8_t green, uint8_t blue,uint8_t level, uint16_t transitionTime);
 
 
 /*
@@ -262,6 +208,12 @@ uint8_t CLM_SetSRGBAbsL(LedNum_t ledIndex,ColorTemperature_t temperature, uint8_
 /*
  *  Set customized sRGB parameters configuration, if the don't call this API or set the cR,cG,cB,cW to the same values that of sRGB used, 
  *  the CLM_SetCustomizedRGBL() and CLM_SetCustomizedRGBAbsL() would be the standard sRGB.
+ *  @param [in] cR,cG,cB,cW is the referred red/greed/blue/white coordinate
+ *  @return 0
+ */
+/*
+ *  Set customized sRGB parameters configuration, if the don't call this API or set the cR,cG,cB,cW to the same values that of sRGB used, 
+ *  the CLM_SetSRGBL() and CLM_SetSRGBAbsL() would be the standard sRGB.
  *  @param [in] cR,cG,cB,cW is the referred red/greed/blue/white coordinate
  *  @return 0
  */

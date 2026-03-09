@@ -79,7 +79,7 @@ uint8_t LNCI_HandleNodeCfgIdentifyRequest(const DiagReqInfo_t *const diagReq,Dia
       */
       diagRsp->packLength = 0U;
       response = TRUE;
-      TM_PostTask(TASK_ID_PDS);/*  start persistance data storage (PDS )task */
+      TM_PostTask(TASK_ID_PDS);  /*start persistance data storage (PDS )task */
   }else if (diagReq->sid == LIN_SID_SNPD && diagReq->packLength == sizeof(SNPD_t)){        /* 0xB5 for auto addressing */
       SNPD_t *snpd = (SNPD_t *)((void *)diagReq->payload);
       if (snpd->supplierID == LIN_SUPPLIER_ID_WILDCARD || snpd->supplierID == LINS_SUPPLIER_ID){

@@ -18,7 +18,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 *************************************************************************************/
 #include <appConfig.h>
 
-#if (LED_NUM > 8U && LED_NUM <= 16U)
+#if (LED_NUM > 16U && LED_NUM <= 24U)
 
 #include <stdint.h>
 #include <string.h>
@@ -29,7 +29,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include <adc_device.h>
 #include <gpio_device.h>
 
-#define PHY_LED_NUM     (16U)
+#define PHY_LED_NUM     (24U)
 #define TIME_DIV_BASE   (PHY_LED_NUM/8U)
 
 
@@ -40,29 +40,37 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 static const uint8_t ledNumTable[]={
   /* PWM21 - PWM23 */
-  LED14,
-  LED15,
+  LED21,
+  LED22,
+  LED23,
   /* PWM18 - PWM20 */
+  LED18,
+  LED19,
+  LED20,
+  /* PWM15 - PWM17 */
+  LED15,
+  LED16,
+  LED17,
+  /* PWM12 - PWM14 */
   LED12,
   LED13,
-  /* PWM15 - PWM17 */
+  LED14,
+  /* PWM9 - PWM11  */
+  LED9,
   LED10,
   LED11,
-  /* PWM12 - PWM14 */
-  LED8,
-  LED9,
-  /* PWM9 - PWM11  */
+  /* PWM6 - PWM8   */
   LED6,
   LED7,
-  /* PWM6 - PWM8   */
+  LED8,
+  /* PWM3 - PWM5   */
+  LED3,
   LED4,
   LED5,
-  /* PWM3 - PWM5   */
-  LED2,
-  LED3,
   /* PWM0 - PWM2   */
   LED0,
   LED1,
+  LED2,
 };
 
 uint8_t PWM_GetPhyLedIndex(uint8_t no)
@@ -85,7 +93,7 @@ void ADC_Handler(void)
 {
     static uint32_t LedPowerSwitch = 0U;
     static uint8_t ledChannel   = 3U;
-    static uint8_t ledNo        = 14U;
+    static uint8_t ledNo        = 22U;
     static uint8_t scanLedNo    = 1U;
     static uint8_t lastLedChannel;
     static uint8_t lastLedNo;
@@ -94,8 +102,8 @@ void ADC_Handler(void)
     
     if (LedPowerSwitch == 0U){
         LedPowerSwitch = 1U;
-        GPIO_SetGPIOs((1U << GPIO_PORT_1) | (1U << GPIO_PORT_2), (1U << GPIO_PORT_1));
-        scanLedNo = 1U;
+        GPIO_SetGPIOs((1U << GPIO_PORT_1) | (1U << GPIO_PORT_2) | (1U << GPIO_PORT_3), (1U << GPIO_PORT_3));
+        scanLedNo = 2U;
         PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_R+ 3U*0U].PRISE  = currPWMMatchValue[0U*TIME_DIV_BASE + 0U][PHY_CHANNEL_R];
         PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_G+ 3U*0U].PRISE  = currPWMMatchValue[0U*TIME_DIV_BASE + 0U][PHY_CHANNEL_G];
         PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_B+ 3U*0U].PRISE  = currPWMMatchValue[0U*TIME_DIV_BASE + 0U][PHY_CHANNEL_B];
@@ -127,9 +135,9 @@ void ADC_Handler(void)
         PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_R+ 3U*7U].PFALL  = currPWMMatchValue[7U*TIME_DIV_BASE + 0U][PHY_CHANNEL_R];
         PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_G+ 3U*7U].PFALL  = currPWMMatchValue[7U*TIME_DIV_BASE + 0U][PHY_CHANNEL_G];
         PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_B+ 3U*7U].PFALL  = currPWMMatchValue[7U*TIME_DIV_BASE + 0U][PHY_CHANNEL_B];
-    }else{
-        LedPowerSwitch = 0U;
-        GPIO_SetGPIOs((1U << GPIO_PORT_1) | (1U << GPIO_PORT_2), (1U << GPIO_PORT_2)); 
+    }else if (LedPowerSwitch == 1U){
+        LedPowerSwitch = 2U;
+        GPIO_SetGPIOs((1U << GPIO_PORT_1) | (1U << GPIO_PORT_2) | (1U << GPIO_PORT_3), (1U << GPIO_PORT_2)); 
         scanLedNo = 0U;
         /*   Next scan Channel */
         ledChannel++;
@@ -170,6 +178,42 @@ void ADC_Handler(void)
         PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_R+ 3U*7U].PFALL  = currPWMMatchValue[7U*TIME_DIV_BASE + 1U][PHY_CHANNEL_R];
         PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_G+ 3U*7U].PFALL  = currPWMMatchValue[7U*TIME_DIV_BASE + 1U][PHY_CHANNEL_G];
         PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_B+ 3U*7U].PFALL  = currPWMMatchValue[7U*TIME_DIV_BASE + 1U][PHY_CHANNEL_B];
+    }else {
+        LedPowerSwitch = 0U;
+        GPIO_SetGPIOs((1U << GPIO_PORT_1) | (1U << GPIO_PORT_2) | (1U << GPIO_PORT_3), (1U << GPIO_PORT_1)); 
+        scanLedNo = 1U;
+          
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_R+ 3U*0U].PRISE  = currPWMMatchValue[0U*TIME_DIV_BASE + 2U][PHY_CHANNEL_R];
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_G+ 3U*0U].PRISE  = currPWMMatchValue[0U*TIME_DIV_BASE + 2U][PHY_CHANNEL_G];
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_B+ 3U*0U].PRISE  = currPWMMatchValue[0U*TIME_DIV_BASE + 2U][PHY_CHANNEL_B];
+        
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_R+ 3U*1U].PFALL  = currPWMMatchValue[1U*TIME_DIV_BASE + 2U][PHY_CHANNEL_R];
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_G+ 3U*1U].PFALL  = currPWMMatchValue[1U*TIME_DIV_BASE + 2U][PHY_CHANNEL_G];
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_B+ 3U*1U].PFALL  = currPWMMatchValue[1U*TIME_DIV_BASE + 2U][PHY_CHANNEL_B];
+        
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_R+ 3U*2U].PRISE  = currPWMMatchValue[2U*TIME_DIV_BASE + 2U][PHY_CHANNEL_R];
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_G+ 3U*2U].PRISE  = currPWMMatchValue[2U*TIME_DIV_BASE + 2U][PHY_CHANNEL_G];
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_B+ 3U*2U].PRISE  = currPWMMatchValue[2U*TIME_DIV_BASE + 2U][PHY_CHANNEL_B];
+        
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_R+ 3U*3U].PFALL  = currPWMMatchValue[3U*TIME_DIV_BASE + 2U][PHY_CHANNEL_R];
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_G+ 3U*3U].PFALL  = currPWMMatchValue[3U*TIME_DIV_BASE + 2U][PHY_CHANNEL_G];
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_B+ 3U*3U].PFALL  = currPWMMatchValue[3U*TIME_DIV_BASE + 2U][PHY_CHANNEL_B];
+        
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_R+ 3U*4U].PRISE  = currPWMMatchValue[4U*TIME_DIV_BASE + 2U][PHY_CHANNEL_R];
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_G+ 3U*4U].PRISE  = currPWMMatchValue[4U*TIME_DIV_BASE + 2U][PHY_CHANNEL_G];
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_B+ 3U*4U].PRISE  = currPWMMatchValue[4U*TIME_DIV_BASE + 2U][PHY_CHANNEL_B];
+
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_R+ 3U*5U].PFALL  = currPWMMatchValue[5U*TIME_DIV_BASE + 2U][PHY_CHANNEL_R];
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_G+ 3U*5U].PFALL  = currPWMMatchValue[5U*TIME_DIV_BASE + 2U][PHY_CHANNEL_G];
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_B+ 3U*5U].PFALL  = currPWMMatchValue[5U*TIME_DIV_BASE + 2U][PHY_CHANNEL_B];
+
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_R+ 3U*6U].PRISE  = currPWMMatchValue[6U*TIME_DIV_BASE + 2U][PHY_CHANNEL_R];
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_G+ 3U*6U].PRISE  = currPWMMatchValue[6U*TIME_DIV_BASE + 2U][PHY_CHANNEL_G];
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_B+ 3U*6U].PRISE  = currPWMMatchValue[6U*TIME_DIV_BASE + 2U][PHY_CHANNEL_B];
+
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_R+ 3U*7U].PFALL  = currPWMMatchValue[7U*TIME_DIV_BASE + 2U][PHY_CHANNEL_R];
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_G+ 3U*7U].PFALL  = currPWMMatchValue[7U*TIME_DIV_BASE + 2U][PHY_CHANNEL_G];
+        PWM_SFRS->PULSE[(uint8_t)PHY_CHANNEL_B+ 3U*7U].PFALL  = currPWMMatchValue[7U*TIME_DIV_BASE + 2U][PHY_CHANNEL_B];
     }
 
     PWM_SFRS->UPDATE = 1U;
@@ -178,7 +222,7 @@ void ADC_Handler(void)
         adcCode = SAR_CTRL_SFRS->ADC_DATA0.DATA0;
         if((adcCode&0x800U) == 0x800U){
           adcCode = 0;
-        }
+        }        
         vLedPNCode[lastLedNo][lastLedChannel]   = adcCode;
     }
     adcCode = SAR_CTRL_SFRS->ADC_DATA0.DATA1; vBattCode = adcCode;
@@ -193,7 +237,8 @@ void ADC_Handler(void)
     } 
     if((vTempCode&0x800U) == 0x800U){
       vTempCode = 0;
-    }    
+    }
+    
     uint8_t runTimeLedNo = ledNo+scanLedNo;
     if (runTimeLedNo < PHY_LED_NUM){
         if (ledIsActive[runTimeLedNo] == TRUE){
@@ -224,15 +269,14 @@ void PWM_SetRGBValue(uint8_t ledNum, uint16_t red, uint16_t green, uint16_t blue
 {
     uint8_t no;
     uint16_t r,g,b;
-    
     if (ledNum < PHY_LED_NUM){
         uint8_t ledNo = ledNumTable[ledNum];
         r = (uint16_t)((red  *MAX_PWM_DUTY) >> 16);
         g = (uint16_t)((green*MAX_PWM_DUTY) >> 16);
         b = (uint16_t)((blue *MAX_PWM_DUTY) >> 16);
         
-        if (red >= (1U*65535U/100U) || green >= (1U*65535U/100U) || blue >= (1U*65535U*75U/100U) ||(red > 0U && green > 0U && blue > 0U)){ /* do PN detect when intensity R => 1% or G => 1% or B => 75% */
-          /* It is recommended to set blue intensity value larger than 75% , or the red and green PN voltage measurement will lead to blinking while only the blue LED is on. */
+                if (red >= (1U*65535U/100U) || green >= (1U*65535U/100U) || blue >= (1U*65535U*86U/100U) ||(red > 0U && green > 0U && blue > 0U)){ /* do PN detect when intensity R => 1% or G => 1% or B => 86% */
+           /* It is recommended to set blue intensity value larger than 86% , or the red and green PN voltage measurement will lead to blinking while only the blue LED is on. */
             ledIsActive[ledNo] = TRUE;
         }else{
             ledIsActive[ledNo] = FALSE;
@@ -264,13 +308,15 @@ void PWM_GetStaticPNVolt(uint8_t ledNo, uint16_t *pnRCode,uint16_t *pnGCode,uint
         ADC_UnregisterIRQ();
         lastCHSEQ   = SAR_CTRL_SFRS->SAR_CHAN_CFG.CHAN_SEQ_NUM;
         lastCH2     = SAR_CTRL_SFRS->SAR_CHAN_CFG.CH1_SEL;
-        uint8_t groupNo    = led_no/TIME_DIV_BASE;
-        uint8_t fragmentNo = led_no - (groupNo*(uint8_t)TIME_DIV_BASE);
+        uint8_t groupNo       = led_no/TIME_DIV_BASE;
+        uint8_t fragmentIndex = led_no - (groupNo*(uint8_t)TIME_DIV_BASE);
         
-        if (fragmentNo == 0U){
-            GPIO_SetGPIOs((1U << GPIO_PORT_1) | (1U << GPIO_PORT_2), (1U << GPIO_PORT_2));
+        if (fragmentIndex == 0U){
+            GPIO_SetGPIOs((1U << GPIO_PORT_1) | (1U << GPIO_PORT_2) | (1U << GPIO_PORT_3), (1U << GPIO_PORT_2));
+        }else if (fragmentIndex == 1U){
+            GPIO_SetGPIOs((1U << GPIO_PORT_1) | (1U << GPIO_PORT_2) | (1U << GPIO_PORT_3), (1U << GPIO_PORT_1));
         }else{
-            GPIO_SetGPIOs((1U << GPIO_PORT_1) | (1U << GPIO_PORT_2), (1U << GPIO_PORT_1));
+            GPIO_SetGPIOs((1U << GPIO_PORT_1) | (1U << GPIO_PORT_2) | (1U << GPIO_PORT_3), (1U << GPIO_PORT_3));
         }
         SAR_CTRL_SFRS->SAR_CTRL.SAR_ENA_REQ = 0U;
         PWM_Reset();
@@ -302,15 +348,6 @@ void PWM_GetStaticPNVolt(uint8_t ledNo, uint16_t *pnRCode,uint16_t *pnGCode,uint
     }
   
 }
-
-
-
-
-
-
-
-
-
 
 
 /**
@@ -374,17 +411,17 @@ void PWM_Reset(void)
 
 uint16_t ADC_GetLedPNCode(uint8_t ledNum, uint16_t *pnCodeR,uint16_t *pnCodeG,uint16_t *pnCodeB)
 {   
-  if (ledNum < PHY_LED_NUM){
+    if (ledNum < PHY_LED_NUM){
       uint8_t ledNo = ledNumTable[ledNum];
 __atomic_enter()
-      *pnCodeR = vLedPNCode[ledNo][PHY_CHANNEL_R];
-      *pnCodeG = vLedPNCode[ledNo][PHY_CHANNEL_G];
-      *pnCodeB = vLedPNCode[ledNo][PHY_CHANNEL_B];
+        *pnCodeR = vLedPNCode[ledNo][PHY_CHANNEL_R];
+        *pnCodeG = vLedPNCode[ledNo][PHY_CHANNEL_G];
+        *pnCodeB = vLedPNCode[ledNo][PHY_CHANNEL_B];
 __atomic_exit()
-      return 0U;
-  }else{
-      return 0xFFU;
-  }
+        return 0U;
+    }else{
+        return 0xFFU;
+    }
 }
 
 uint16_t ADC_GetVBuckCode(void)

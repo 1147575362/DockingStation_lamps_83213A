@@ -38,7 +38,7 @@ void Clock_SystemMainClockInit(uint8_t divider)
     CRGA_SFRS->SYSCLKCTRL.SYSCLKSEL = (uint8_t)CLOCK_RC_16MHz;
     CRGA_SFRS->SYSCLKCTRL.DIVSYSCLK = (uint8_t)divider;
     /*  frequency spread    */
-    SYSCTRLA_SFRS->HF_OSC_TRIM.SSCDEEP  = 7U;/*  3  */
+    SYSCTRLA_SFRS->HF_OSC_TRIM.SSCDEEP  = 3U;/*  3  */
     SYSCTRLA_SFRS->HF_OSC_TRIM.SSCDIV   = 15U;
     SYSCTRLA_SFRS->HF_OSC_TRIM.SSCENA   = 1U;
     

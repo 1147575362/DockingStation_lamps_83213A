@@ -175,9 +175,9 @@ void LINS_TaskHandler(void)
       LINS_Init();
       LINS_RegisterPrivateServices(CmdsTable, (l_u8)(sizeof(CmdsTable)/sizeof(LIN_Device_Frame_t)), &linsFramesCallback);
       /* Note that please don't change the following glitch configuration!!!!*/
-      (void)ls_set_lins_rx_glitch_filter_1st(0x00U,0x08U);
-      (void)ls_set_lins_rx_glitch_filter_2nd(0x0AU,0x10U);
-      (void)ls_set_lins_rx_glitch_filter_3rd(0x30U,0x30U);
+      (void)ls_set_lins_rx_glitch_filter_1st(0x02U,0x08U);
+      (void)ls_set_lins_rx_glitch_filter_2nd(0x10U,0x10U);
+      (void)ls_set_lins_rx_glitch_filter_3rd(0x28U,0x28U);
       linsTaskState = TASK_STATE_ACTIVE;
       break;
     default:

@@ -22,7 +22,6 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include <pdsTask.h>
 #include <linStackTask.h>
 #include <uart_device.h>
-#include <colorFormula.h>
 
 
 #if UART_MILKY_WAY_EN == 1U
@@ -36,6 +35,8 @@ static TaskState_t applState = TASK_STATE_INIT;
 void ApplTimerExpired(SoftTimer_t *timer);
 
 
+
+
 static uint8_t LED_State = 0U;
 
 uint8_t APPL_GetLEDState(void)
@@ -45,9 +46,11 @@ uint8_t APPL_GetLEDState(void)
 
 
 
+
+
 static SoftTimer_t ApplTimer = {
     .mode     = TIMER_PERIODIC_MODE,
-    .interval = 1000U,
+    .interval = 20U,
     .handler  = ApplTimerExpired
 };
 
@@ -59,22 +62,30 @@ void ApplTimerExpired(SoftTimer_t *timer)
     temp.value[1] = ROOM_TEMPERATURE;
     temp.value[2] = ROOM_TEMPERATURE;
     static uint8_t index = 0U;
-    if (index == 0U){
-        index = 1U;
-        for(uint8_t i = 0U; i < LED_NUM; i++){
-            (void)CLM_SetRGBL((LedNum_t)i,temp, 255U, 0U, 0U,1024U, 0U);
+    static uint8_t colorIndex = 0U;
+    static uint8_t red = 0,green = 0, blue = 0;
+    if (index < LED_NUM){
+        (void)CLM_SetRGBL((LedNum_t)index,temp, red, green, blue,1024U, 1000U);
+    }
+    index++;
+    if (index >= LED_NUM){
+        index = 0;
+        colorIndex++;
+        if (colorIndex >=4U){
+            colorIndex = 0U;
         }
-    }else if (index == 1U){
-        index = 2U;
-        for(uint8_t i = 0U; i < LED_NUM; i++){
-            (void)CLM_SetRGBL((LedNum_t)i,temp, 0U, 255U, 0U,1024U, 0U);
-        }
-    }else{
-        index = 0U;
-        for(uint8_t i = 0U; i < LED_NUM; i++){
-            (void)CLM_SetRGBL((LedNum_t)i,temp, 0U, 0U, 255U,1024U, 0U);
+        
+        if (colorIndex == 0U){
+            red = 0;green = 0; blue = 0;
+        }else if (colorIndex == 1U){
+            red = 255;green = 0; blue = 0;
+        }else if (colorIndex == 2U){
+            red = 0;green = 255; blue = 0;
+        }else{
+            red = 0;green = 0; blue = 255;
         }
     }
+    
 }
 
 void APPL_TaskHandler(void)
@@ -82,6 +93,7 @@ void APPL_TaskHandler(void)
     switch(applState){
     case TASK_STATE_INIT:
       SoftTimer_Start(&ApplTimer);
+      (void)CLM_SetIntensityDegradation(FALSE);
       applState = TASK_STATE_ACTIVE;
       break;
     case TASK_STATE_ACTIVE:
@@ -98,9 +110,13 @@ void APPL_TaskHandler(void)
 void APPL_HandleColorControlCommands(LIN_Device_Frame_t const *frame)
 {
     ColorCtrlFrame_t const *color = (ColorCtrlFrame_t const*)((void const*)frame->data);
-    if ( (color->nodeAddress == ls_read_nad()) || (color->nodeAddress == LIN_NAD_WILDCARD)){
-        if (color->channel < LED_NUM){
-            LedNum_t ledIndex = (LedNum_t)color->channel;
+    uint8_t nodeAddress = color->nodeAddress & 0x3FU;
+    uint8_t ledNumMsb = color->nodeAddress >> 6U;
+    uint8_t ledNum = color->channel + (ledNumMsb << 4U);
+    if ( (nodeAddress == ls_read_nad()) || (nodeAddress == LIN_NAD_WILDCARD)){
+        if (ledNum < LED_NUM){
+//            LedNum_t ledIndex = color->channel;
+            LedNum_t ledIndex = (LedNum_t)ledNum;
             switch(color->command){
             case CMD_COLOR_CTRL_XYY:
               (void)CLM_SetXYY(ledIndex,MES_GetLedTemperature(ledIndex), color->ColorXY.x, color->ColorXY.y, (uint16_t)color->ColorXY.Y*10U, (uint16_t)color->ColorXY.transitionTime*100U);
@@ -169,7 +185,7 @@ uint8_t APPL_HandleLedParamConfigRequest(uint8_t reqSid,uint8_t *const dataBuff,
       temperature.value[1] = info->ledPhysicalParam.temperature[1];
       temperature.value[2] = info->ledPhysicalParam.temperature[2];
       if (info->ledPhysicalParam.ledIndex <= (LedNum_t)(LED_NUM -1U)){
-          (void)CLM_SetLedPhyParams((LedNum_t)info->ledPhysicalParam.ledIndex,temperature, &ledColorParam);
+          (void)CLM_SetLedPhyParams(info->ledPhysicalParam.ledIndex,temperature, &ledColorParam);
           diagRsp->payload[0] = 0x00U;
       }
       response = TRUE;
@@ -177,9 +193,8 @@ uint8_t APPL_HandleLedParamConfigRequest(uint8_t reqSid,uint8_t *const dataBuff,
       }
     case APP_DIAG_SET_LED_GENERAL_PARAM:
       {
-      Coordinate_t whitePoint;
+      Coordinate_t    whitePoint = info->ledGeneralParam.whitePoint;
       uint16_t minIntensity[3];
-      whitePoint = info->ledGeneralParam.whitePoint;
       minIntensity[0] = info->ledGeneralParam.minIntensity[0];
       minIntensity[1] = info->ledGeneralParam.minIntensity[1];
       minIntensity[2] = info->ledGeneralParam.minIntensity[2];
@@ -230,7 +245,7 @@ uint8_t APPL_PrepareLedParamRequest(uint8_t reqSid,uint8_t *const dataBuff, Diag
       temperature.value[2] = info->ledPhysicalParam.temperature[2];
       
       if (info->ledPhysicalParam.ledIndex <= (LedNum_t)(LED_NUM -1U)){
-          (void)CLM_GetLedPhyParams((LedNum_t)info->ledPhysicalParam.ledIndex,temperature, &ledColorParam);
+         (void)CLM_GetLedPhyParams((LedNum_t)info->ledPhysicalParam.ledIndex,temperature, &ledColorParam);
           infoRsp->ledPhysicalParam.colorParam      = ledColorParam;
           infoRsp->ledPhysicalParam.ledIndex        = info->ledPhysicalParam.ledIndex;
           infoRsp->ledPhysicalParam.temperature[0]  = info->ledPhysicalParam.temperature[0];
@@ -307,7 +322,7 @@ uint8_t APPL_PrepareLedParamRequest(uint8_t reqSid,uint8_t *const dataBuff, Diag
       {
         int8_t rTemp,gTemp,bTemp;
         if ((uint8_t)info->LedRunTimePNTemp.ledIndex < LED_NUM ){
-            (void)MES_GetLedRGBTemperature(info->LedRunTimePNTemp.ledIndex, &rTemp,&gTemp,&bTemp);
+            (void)MES_GetLedRGBTemperature((LedNum_t)info->LedRunTimePNTemp.ledIndex, &rTemp,&gTemp,&bTemp);
             infoRsp->LedRunTimePNTemp.ledIndex = info->LedRunTimePNTemp.ledIndex;
             infoRsp->LedRunTimePNTemp.ledTemp[0] = rTemp;
             infoRsp->LedRunTimePNTemp.ledTemp[1] = gTemp;
@@ -323,7 +338,7 @@ uint8_t APPL_PrepareLedParamRequest(uint8_t reqSid,uint8_t *const dataBuff, Diag
       {
       /* force to measure PN volt when Led is off for getting initialized PN voltage */
       uint16_t volt_R,volt_G,volt_B;
-      MES_MnftGetLedInfo(info->ledStaticPNVolt.ledIndex, &volt_R,&volt_G,&volt_B);
+      MES_MnftGetLedInfo((LedNum_t)info->ledStaticPNVolt.ledIndex, &volt_R,&volt_G,&volt_B);
       infoRsp->ledStaticPNVolt.ledIndex = info->ledStaticPNVolt.ledIndex;
       infoRsp->ledStaticPNVolt.ledPNVolt[0] = volt_R;
       infoRsp->ledStaticPNVolt.ledPNVolt[1] = volt_G;
@@ -348,7 +363,7 @@ uint8_t APPL_PrepareLedParamRequest(uint8_t reqSid,uint8_t *const dataBuff, Diag
             infoRsp->ledRunTimePNVolt.buckVolt = buckVolt;
             infoRsp->ledRunTimePNVolt.chipTemp = chipTemperature;
             
-            MES_GetRunTimeLedPNVolt(info->ledRunTimePNVolt.ledIndex,&volt_R, &volt_G, &volt_B);
+            MES_GetRunTimeLedPNVolt((LedNum_t)info->ledRunTimePNVolt.ledIndex,&volt_R, &volt_G, &volt_B);
             infoRsp->ledRunTimePNVolt.ledIndex = info->ledRunTimePNVolt.ledIndex;
             infoRsp->ledRunTimePNVolt.ledPNVolt[0] = (uint16_t)volt_R;
             infoRsp->ledRunTimePNVolt.ledPNVolt[1] = (uint16_t)volt_G;

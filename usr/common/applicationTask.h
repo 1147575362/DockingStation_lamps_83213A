@@ -227,7 +227,7 @@ END_PACK
 
 
 uint8_t APPL_GetLEDState(void);
-
+uint8_t APPL_GetLedNumFromTable(LedNum_t no);
 void APPL_TaskHandler(void);
 void APPL_HandleColorControlCommands(LIN_Device_Frame_t const *frame);
 /* Response enable  */

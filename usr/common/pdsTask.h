@@ -6,10 +6,10 @@
 #include <taskManager.h>
 
 /*  please don't do any change for it would be used in color mixing  */
-#define CFL_LED_NUM     (16U)  /* Max support 16 rgb Leds */
+#define CFL_LED_NUM     (40U)  /* Max support 16 rgb Leds */
 
-#if CFL_LED_NUM != 16U
-    #error max supports must be 16 leds!*/
+#if CFL_LED_NUM != 40U
+    #error max supports must be 40 leds!*/
 #endif
 
 /* ************color mixing  configuration default value******************** */
@@ -56,6 +56,30 @@ typedef enum{
   LED13,
   LED14,
   LED15,
+  LED16,
+  LED17,
+  LED18,
+  LED19,
+  LED20,
+  LED21,
+  LED22,
+  LED23,
+  LED24,
+  LED25,
+  LED26,
+  LED27,
+  LED28,
+  LED29,
+  LED30,
+  LED31,
+  LED32,
+  LED33,
+  LED34,
+  LED35,
+  LED36,
+  LED37,
+  LED38,
+  LED39,
 }LedNum_t;
 
 typedef enum{

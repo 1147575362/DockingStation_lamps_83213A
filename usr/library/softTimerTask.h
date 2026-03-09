@@ -20,10 +20,11 @@ typedef struct SoftTimer {
     struct SoftTimer *next;     /* Internal data don't use!! */
     uint32_t timeout;           /* Internal data don't use!! */
     
-    uint32_t interval;          /* Timer parameters  unit : ms*/
-    SoftTimerMode_t mode;
-    uint32_t param;             /* variables for user use*/
     void (*handler)(struct SoftTimer *timer);
+    uint16_t interval;          /* Timer parameters  unit : ms*/
+    SoftTimerMode_t mode;
+    uint8_t param;             /* variables for user use*/
+
 }SoftTimer_t;
 
 /*

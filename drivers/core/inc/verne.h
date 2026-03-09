@@ -244,14 +244,14 @@ applies to non-defined addresses.*/
 /*                                              
 - 7K   -bootlaoder
 - 52K  -app
-- 4K   -user param
-- 1K   -color lib param
+- 2K   -user param
+- 3K   -color lib param
 */
 #define FLASH_STRAT_ADDRESS_BOOTLOADER                  (0x0000U)
 #define FLASH_START_ADDRESS_APPLICATION                 (0x1C08U) /* 7K */
 #define FLASH_START_ADDRESS_USER_DATA                   (0xEC00U) /* 7K + 52K*/
-#define FLASH_START_ADDRESS_SYSTEM_DATA                 (0xFC00U) /* 7K + 52K + +4K + 0.5K*/
-#define FLASH_START_ADDRESS_SYSTEM_DATA_BACK_UP         (0xFE00U) /* 7K + 52K + +4K + 1.0K*/
+#define FLASH_START_ADDRESS_SYSTEM_DATA                 (0xF400U) /* 7K + 52K + 2K*/
+#define FLASH_START_ADDRESS_SYSTEM_DATA_BACK_UP         (0xFA00U) /* 7K + 52K + 2K + 1.5K*/
 #define FLASH_END                                       (0xFFFFU)    
 #define IMAGE_MAX_SIZE                                  (FLASH_START_ADDRESS_USER_DATA - FLASH_START_ADDRESS_APPLICATION)
 

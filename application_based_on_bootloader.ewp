@@ -608,7 +608,7 @@
                 </option>
                 <option>
                     <name>AOutputFile</name>
-                    <state></state>
+                    <state>$FILE_BNAME$.o</state>
                 </option>
                 <option>
                     <name>ALimitErrorsCheck</name>
@@ -1121,10 +1121,7 @@
                 <name>$PROJ_DIR$\usr\common\linsNodeCfgIdentify_J2602.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\usr\common\measureTask.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\usr\common\measureTask_2_time_division_multiplex.c</name>
+                <name>$PROJ_DIR$\usr\common\measureTask_time_division_multiplex.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\usr\common\pdsTask.c</name>
@@ -1237,10 +1234,7 @@
             <group>
                 <name>src</name>
                 <file>
-                    <name>$PROJ_DIR$\drivers\hal\src\adc_device.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\drivers\hal\src\adc_device_2_time_division_multiplex.c</name>
+                    <name>$PROJ_DIR$\drivers\hal\src\adc_device_time_division_multiplex.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\drivers\hal\src\buck_device.c</name>
@@ -1267,10 +1261,16 @@
                     <name>$PROJ_DIR$\drivers\hal\src\pmu_device.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\drivers\hal\src\pwm_device.c</name>
+                    <name>$PROJ_DIR$\drivers\hal\src\pwm_device_2_time_division_multiplex.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\drivers\hal\src\pwm_device_2_time_division_multiplex.c</name>
+                    <name>$PROJ_DIR$\drivers\hal\src\pwm_device_3_time_division_multiplex.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\drivers\hal\src\pwm_device_4_time_division_multiplex.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\drivers\hal\src\pwm_device_5_time_division_multiplex.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\drivers\hal\src\pwmAux_device.c</name>

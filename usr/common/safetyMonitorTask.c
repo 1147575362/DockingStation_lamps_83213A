@@ -26,7 +26,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 
 #define LED_PN_SHORT_VOLT                       (500)   /* mV */
-#define LED_PN_OPEN_VOLT                        (4000)  /* mV */
+#define LED_PN_OPEM_VOLT                        (4000)  /* mV */
 
 #define INTENSITY_RATIO_TYPICAL                 (1024U)                                 /* 100% of max intensity */
 #define INTENSITY_RATIO_HIGH_TEMPERATURE        (INTENSITY_RATIO_TYPICAL*4U/5U)         /* 80% of max intensity */
@@ -84,15 +84,15 @@ static void safetyHandle(void)
         pnState = 0U;
         MES_GetRunTimeLedPNVolt((LedNum_t)ledIndex,&pnVoltR, &pnVoltG,&pnVoltB);
         if(PWM_LedIsOn(ledIndex) == 0U){
-            pnVoltR = INVALID_VOLT;
-            pnVoltG = INVALID_VOLT;
-            pnVoltB = INVALID_VOLT;            
-        }
-        if ( (pnVoltR != INVALID_VOLT) && (pnVoltG != INVALID_VOLT)  && (pnVoltB != INVALID_VOLT) ){
+            pnVoltR = INVALID_PARAM;
+            pnVoltG = INVALID_PARAM;
+            pnVoltB = INVALID_PARAM;            
+        } 
+        if ( (pnVoltR != (int16_t)INVALID_PARAM) && (pnVoltG != (int16_t)INVALID_PARAM)  && (pnVoltB != (int16_t)INVALID_PARAM) ){
             if ( (pnVoltR <= LED_PN_SHORT_VOLT) || (pnVoltG <= LED_PN_SHORT_VOLT) || (pnVoltB <= LED_PN_SHORT_VOLT)){
                 pnState = 1U;           /* short  */
             }
-            if ( (pnVoltR >= LED_PN_OPEN_VOLT) || (pnVoltG >= LED_PN_OPEN_VOLT) || (pnVoltB >= LED_PN_OPEN_VOLT)){
+            if ( (pnVoltR >= LED_PN_OPEM_VOLT) || (pnVoltG >= LED_PN_OPEM_VOLT) || (pnVoltB >= LED_PN_OPEM_VOLT)){
                 pnState |= (1U << 1);   /* open  */
             }
         }
@@ -161,7 +161,7 @@ static void safetyInit(void)
     for (uint8_t ledIndex = 0U; ledIndex < LED_NUM; ledIndex++){
         ledPNState[ledIndex] = LED_PN_NORMAL;
     }
-    HW_PROT_SetUnderVoltage(UV_VOLT_5_505V,UV_HYS_10_PERCENT, VOLT_DEBOUNCE_TIME_10ms, VOLT_DEBOUNCE_TIME_10ms);
+    HW_PROT_SetUnderVoltage(UV_VOLT_5_505V,UV_HYS_04_PERCENT, VOLT_DEBOUNCE_TIME_10ms, VOLT_DEBOUNCE_TIME_10ms);
     HW_PROT_RegisterUnderVoltageIRQ(UnderVoltageProtection_ISR);
     
     HW_PROT_SetOverVoltage(OV_VOLT_20_64V, OV_HYS_12_PERCENT,   VOLT_DEBOUNCE_TIME_10ms, VOLT_DEBOUNCE_TIME_10ms);

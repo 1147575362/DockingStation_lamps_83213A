@@ -16,13 +16,14 @@ CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, COST OF PROCUREMENT OF
 SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 (INCLUDING BUT NOT LIMITED TO ANY DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 *************************************************************************************/
+
 #include <appConfig.h>
 
 #if (LED_NUM <= 8U)
 
 #include <crc32.h>
 #include <measureTask.h>
-#include <gpio_device.h>
+
 #define AVERAGE_MEASURE_POS     (4U)
 #define AVERAGE_MEASURE_GAIN    (1U << AVERAGE_MEASURE_POS)
 
@@ -36,7 +37,6 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #define MEASURE_TEMP_GAIN_POS    14U
 #define MEASURE_TEMP_GAIN        40960 /*16384*2.5 *2*/
 #define MEASURE_ADC_GAIN_FACTOR  16913U /* 16384 / ADC_GAIN(31/32) = 16384 * 32/31 = 16913*/
-
 
 typedef struct{
   int32_t gain;
@@ -64,7 +64,7 @@ typedef struct{
 static uint8_t dataIntegrityError = FALSE;
 
 
-void add_data_to_buff(uint32_t *original, uint16_t newData, uint16_t *bufferIndex,uint16_t *buff);
+void add_data_to_buff(uint16_t *original, uint16_t newData, uint16_t *bufferIndex,uint16_t *buff);
 static TaskState_t adcTaskState = TASK_STATE_INIT;
 static AdcResult_t adcResult;
 
@@ -237,17 +237,12 @@ int16_t get_volt(AdcDatabuff_t *const param)
         }
         sum  = sum >> (AVERAGE_MEASURE_POS - 1U);
         sVolt = param->calibP.gain * (int32_t)sum + param->calibP.offset;
-        if(sVolt <=0){
-            sVolt = -sVolt;
-            uVolt = (uint32_t)sVolt;
-            uVolt = uVolt >> MEASURE_GAIN_POS;
-            volt = (int16_t)uVolt;
-            volt = -volt;
-        }else{
-            uVolt = (uint32_t)sVolt;
-            uVolt = uVolt >> MEASURE_GAIN_POS;
-            volt = (int16_t)uVolt;       
+        if (sVolt <= 0){
+            sVolt = 0;
         }
+        uVolt = (uint32_t)sVolt;
+        uVolt = uVolt >> MEASURE_GAIN_POS;
+        volt = (int16_t)uVolt;
     }
     return volt;
 }
@@ -289,7 +284,7 @@ void updateSystemInfo(void)
     /* calculate buck volt */
     adcResult.vBuck.target = get_volt(&adcResult.vBuck);
 #if CODE_DEBUG_EN == 1
-    (void)DEBUG_OUT("VBUCK:%4d  \r\n",adcResult.vBuck.target);
+    (void)DEBUG_OUT("VBUCK:%4d  ",adcResult.vBuck.target);
 #endif
 }
 
@@ -335,17 +330,17 @@ void updateLedTemperature(LedNum_t ledIndex)
         adcResult.vLedPN[ledIndex][i].target = get_volt(&adcResult.vLedPN[ledIndex][i]);
         if (adcResult.vLedPN[ledIndex][i].target != (int16_t)INVALID_VOLT){
             if (i == (uint8_t)LED_RED){
-                adcResult.ledPNTemperature[ledIndex][i] = get_led_temperature(LP_GetTempTableRed(ledIndex),  (adcResult.vLedPN[ledIndex][i].target - typicalVolt[i]) );
+                adcResult.ledPNTemperature[ledIndex][i] = get_led_temperature(LP_GetTempTableRed(),  (adcResult.vLedPN[ledIndex][i].target - typicalVolt[i]) );
             }else if (i == (uint8_t)LED_GREEN){
-                adcResult.ledPNTemperature[ledIndex][i] = get_led_temperature(LP_GetTempTableGreen(ledIndex),(adcResult.vLedPN[ledIndex][i].target - typicalVolt[i]) );
+                adcResult.ledPNTemperature[ledIndex][i] = get_led_temperature(LP_GetTempTableGreen(),(adcResult.vLedPN[ledIndex][i].target - typicalVolt[i]) );
             }else{
-                adcResult.ledPNTemperature[ledIndex][i] = get_led_temperature(LP_GetTempTableBlue(ledIndex), (adcResult.vLedPN[ledIndex][i].target - typicalVolt[i]) );
+                adcResult.ledPNTemperature[ledIndex][i] = get_led_temperature(LP_GetTempTableBlue(), (adcResult.vLedPN[ledIndex][i].target - typicalVolt[i]) );
             }
         }else{
             adcResult.ledPNTemperature[ledIndex][i] = ROOM_TEMPERATURE;
         }
 #if CODE_DEBUG_EN == 1
-        (void)DEBUG_OUT("TLED[%d][%d]:%3d  \r\n",ledIndex,i,adcResult.vLedPN[ledIndex][i].target);
+        (void)DEBUG_OUT("TLED[%d][%d]:%3d  ",ledIndex,i,adcResult.vLedPN[ledIndex][i].target);
 #endif  
     }
 #if CODE_DEBUG_EN == 1
@@ -413,20 +408,13 @@ void MES_TaskHandler(void)
 
 void measureParamInit(void)
 {
-    uint16_t version = HWCFG_GetFlashMapVersion();
-    if (version == 0xFFFFU){
+    uint32_t crc = CRC32_GetRunTimeCRC32((uint8_t *)HWCFG_SFRS->payload+4U ,508U);
+    if (crc != HWCFG_SFRS->crc32){
         dataIntegrityError = TRUE;
-    }else{
-        HWCFG_SFRS_t *param = (HWCFG_SFRS_t *)HWCFG_SFRS_ADDR;
-        uint32_t crcCalculated = CRC32_GetRunTimeCRC32( param->payload + 4U ,508U);
-        uint32_t crcFromFlash = HWCFG_SFRS->crc32;
-        if (crcCalculated != crcFromFlash){
-            dataIntegrityError = TRUE;
-        }
     }
 
-    uint32_t bandgap_mV  = HWCFG_GetVBG();
-    uint16_t tSensorCode = HWCFG_GetADCCode_PTATLED();
+    uint32_t bandgap_mV  = 1220U;
+    uint16_t tSensorCode = 404;//HWCFG_SFRS->ADC_CODE_PTAT_LED_25C;
     int32_t tSensor_mV;
     bandgap_mV = (bandgap_mV*tSensorCode) >> 12U;/* 0.5mV */
     tSensor_mV = (int32_t)((uint32_t)((bandgap_mV * MEASURE_ADC_GAIN_FACTOR) >> MEASURE_TEMP_GAIN_POS));
@@ -436,8 +424,8 @@ void measureParamInit(void)
     adcResult.tChip.offset      = 25*(int32_t)(1UL << MEASURE_TEMP_GAIN_POS) - MEASURE_TEMP_GAIN*tSensor_mV;/* 25 degree centigrade*/
     
     /* battery volt*/
-    uint16_t batt13V5   = HWCFG_GetADCCode_VBAT13V5();
-    uint16_t batt8V0    = HWCFG_GetADCCode_VBAT8V0();
+    uint16_t batt13V5   = 1632U;//HWCFG_SFRS->ADC_CODE_VBAT_13P5V;
+    uint16_t batt8V0    = 967U;//HWCFG_SFRS->ADC_CODE_VBAT_8P0V;
     
     if (batt8V0 == 0xFFFFU){
         adcResult.vBatt.calibP.gain      = (13500 - 0)*MEASURE_GAIN/((int32_t)batt13V5 - 0);
@@ -449,7 +437,7 @@ void measureParamInit(void)
     
     adcResult.vBatt.startCode    = INVALID_PARAM;
     /* buck volt*/
-    uint16_t buck5V0 = HWCFG_SFRS->ADC_CODE_BUCK_VOUT_5V;/*HWCFG_GetADCCode_VBUCK5V0();*/
+    uint16_t buck5V0 = 2115;//HWCFG_SFRS->BUCK_ADC_CODE_VOUT_5V;
     adcResult.vBuck.calibP.gain         = (5000- 0)*MEASURE_GAIN/((int32_t)buck5V0 - 0);
     adcResult.vBuck.calibP.offset       = 0;
     adcResult.vBuck.startCode           = INVALID_PARAM;
@@ -457,20 +445,20 @@ void measureParamInit(void)
     /* led parameters init */
     uint16_t codeH,codeL;
     for (uint8_t i = 0; i < LED_NUM; i++){
-        codeH = HWCFG_GetADCCodeLEDPN_4V0((uint8_t)PHY_CHANNEL_R(i));
-        codeL = HWCFG_GetADCCodeLEDPN_1V5((uint8_t)PHY_CHANNEL_R(i));
+        codeH = 2708;//HWCFG_SFRS->LED[PHY_CHANNEL_R(i)].ADC_CODE_PN_DELTA_4000mV;
+        codeL = 1015;//HWCFG_SFRS->LED[PHY_CHANNEL_R(i)].ADC_CODE_PN_DELTA_1500mV;
         adcResult.vLedPN[i][0].calibP.gain        = (4000 - 1500)*MEASURE_GAIN/((int32_t)codeH - (int32_t)codeL);
         adcResult.vLedPN[i][0].calibP.offset      = 1500*MEASURE_GAIN - adcResult.vLedPN[i][0].calibP.gain*(int32_t)codeL;
         adcResult.vLedPN[i][0].startCode = INVALID_PARAM;
         
-        codeH = HWCFG_GetADCCodeLEDPN_4V0((uint8_t)PHY_CHANNEL_G(i));
-        codeL = HWCFG_GetADCCodeLEDPN_1V5((uint8_t)PHY_CHANNEL_G(i));
+        codeH = 2708;//HWCFG_SFRS->LED[PHY_CHANNEL_G(i)].ADC_CODE_PN_DELTA_4000mV;
+        codeL = 1015;//HWCFG_SFRS->LED[PHY_CHANNEL_G(i)].ADC_CODE_PN_DELTA_1500mV;
         adcResult.vLedPN[i][1].calibP.gain        = (4000 - 1500)*MEASURE_GAIN/((int32_t)codeH - (int32_t)codeL);
         adcResult.vLedPN[i][1].calibP.offset      = 1500*MEASURE_GAIN - adcResult.vLedPN[i][1].calibP.gain*(int32_t)codeL;
         adcResult.vLedPN[i][1].startCode = INVALID_PARAM;
         
-        codeH = HWCFG_GetADCCodeLEDPN_4V0((uint8_t)PHY_CHANNEL_B(i));
-        codeL = HWCFG_GetADCCodeLEDPN_1V5((uint8_t)PHY_CHANNEL_B(i));
+        codeH = 2708;//HWCFG_SFRS->LED[PHY_CHANNEL_B(i)].ADC_CODE_PN_DELTA_4000mV;
+        codeL = 1015;//HWCFG_SFRS->LED[PHY_CHANNEL_B(i)].ADC_CODE_PN_DELTA_1500mV;
         adcResult.vLedPN[i][2].calibP.gain       = (4000 - 1500)*MEASURE_GAIN/((int32_t)codeH - (int32_t)codeL);
         adcResult.vLedPN[i][2].calibP.offset     = 1500*MEASURE_GAIN - adcResult.vLedPN[i][2].calibP.gain*(int32_t)codeL;
         adcResult.vLedPN[i][2].startCode = INVALID_PARAM;
@@ -480,6 +468,7 @@ void measureParamInit(void)
             adcResult.ledPNTemperature[i][channel] = ROOM_TEMPERATURE;
         }
     }
+    
 }
 
 /*
@@ -567,11 +556,11 @@ int8_t MES_GetLedRGBTemperature(LedNum_t index, int8_t *rTemp,int8_t *gTemp,int8
  *  @param [out] pnVoltR/pnVoltG/pnVoltB: 0-4000mV
  *  @return :none
  */
-void MES_GetRunTimeLedPNVolt(LedNum_t ledIndex,int16_t *pnVoltR, int16_t *pnVoltG,int16_t *pnVoltB)
+void MES_GetRunTimeLedPNVolt(LedNum_t ledIndex,uint16_t *pnVoltR, uint16_t *pnVoltG,uint16_t *pnVoltB)
 {
-    *pnVoltR = adcResult.vLedPN[ledIndex][0].target;
-    *pnVoltG = adcResult.vLedPN[ledIndex][1].target;
-    *pnVoltB = adcResult.vLedPN[ledIndex][2].target;
+    *pnVoltR = (uint16_t)adcResult.vLedPN[ledIndex][0].target;
+    *pnVoltG = (uint16_t)adcResult.vLedPN[ledIndex][1].target;
+    *pnVoltB = (uint16_t)adcResult.vLedPN[ledIndex][2].target;
 }
 
 
@@ -579,17 +568,11 @@ void MES_MnftGetLedInfo(LedNum_t ledNo, uint16_t *pnRVolt,uint16_t *pnGVolt,uint
 {
     int32_t sLedCode = 0;
     uint32_t uLedCode[3];
-    SAR_CTRL_SFRS->SAR_CTRL.SAR_ENA_REQ         = 0U;
     for(uint8_t i = 0U; i < LED_NUM; i++){
         (void)CLM_SetPWMs((LedNum_t)i,0U, 0U, 0U, 0U);  /* turn off all of channels */
     }
     while(PWM_UpdateFinished() != TRUE){}
     
-    ADC_Init(ADC_MEASURE_ITEM_LED,(uint8_t)ledNo,(LedType_t)0U,ADC_TRIGGER_SOURCE_SOFT_INPUT);
-    adcConvertDone = 0U;
-    ADC_Start();/* soft trigger for adc conversion   */
-    while(adcConvertDone == 0U){}
-            
     for (uint8_t led = 0U; led < 3U; led++){
         uLedCode[led] = 0U;
         ADC_Init(ADC_MEASURE_ITEM_LED,(uint8_t)ledNo,(LedType_t)led,ADC_TRIGGER_SOURCE_SOFT_INPUT);
@@ -599,7 +582,7 @@ void MES_MnftGetLedInfo(LedNum_t ledNo, uint16_t *pnRVolt,uint16_t *pnGVolt,uint
             while(adcConvertDone == 0U){}
             uLedCode[led] += measGeneralAdcCode[0];
         }
-        uLedCode[led] = (uLedCode[led] >> 3);
+        uLedCode[led] = (uLedCode[led] >> 4);
         sLedCode = (int32_t)uLedCode[led];
         sLedCode = sLedCode* adcResult.vLedPN[ledNo][led].calibP.gain + adcResult.vLedPN[ledNo][led].calibP.offset;
         uLedCode[led] = (uint32_t)sLedCode;

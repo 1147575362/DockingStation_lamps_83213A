@@ -658,7 +658,7 @@
                 </option>
                 <option>
                     <name>OOCOutputFile</name>
-                    <state>rugby_hp_cs01_app.bin</state>
+                    <state>rugbyHP_cs01_app.bin</state>
                 </option>
                 <option>
                     <name>OOCCommandLineProducer</name>
@@ -713,7 +713,7 @@
                 </option>
                 <option>
                     <name>IlinkOutputFile</name>
-                    <state>rugby_hp_cs01_app.out</state>
+                    <state>rugbyHP_cs01_app.out</state>
                 </option>
                 <option>
                     <name>IlinkDebugInfoEnable</name>
@@ -1127,7 +1127,7 @@
                 <name>$PROJ_DIR$\usr\common\measureTask.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\usr\common\measureTask_2_time_division_multiplex.c</name>
+                <name>$PROJ_DIR$\usr\common\measureTask_time_division_multiplex.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\usr\common\pdsTask.c</name>
@@ -1240,10 +1240,7 @@
             <group>
                 <name>src</name>
                 <file>
-                    <name>$PROJ_DIR$\drivers\hal\src\adc_device.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\drivers\hal\src\adc_device_2_time_division_multiplex.c</name>
+                    <name>$PROJ_DIR$\drivers\hal\src\adc_device_time_division_multiplex.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\drivers\hal\src\buck_device.c</name>
@@ -1274,6 +1271,15 @@
                 </file>
                 <file>
                     <name>$PROJ_DIR$\drivers\hal\src\pwm_device_2_time_division_multiplex.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\drivers\hal\src\pwm_device_3_time_division_multiplex.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\drivers\hal\src\pwm_device_4_time_division_multiplex.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\drivers\hal\src\pwm_device_5_time_division_multiplex.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\drivers\hal\src\pwmAux_device.c</name>

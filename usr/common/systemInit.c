@@ -46,12 +46,23 @@ void gpios_init(void)
 {
     /* set gpios to input with power up resistor */
 #if LED_NUM > 8U
-    GPIO_Init(GPIO_PORT_2, GPIO_DIR_OUTPUT,GPIO_PULL_NONE);
-    GPIO_Set(GPIO_PORT_2, GPIO_LOW);
-    GPIO_Init(GPIO_PORT_3, GPIO_DIR_OUTPUT,GPIO_PULL_NONE);
-    GPIO_Set(GPIO_PORT_3, GPIO_LOW);
-#endif 
-
+    GPIO_Init(GPIO_PORT_1, GPIO_DIR_OUTPUT,GPIO_PULL_NONE); GPIO_Set(GPIO_PORT_1, GPIO_LOW);
+    GPIO_Init(GPIO_PORT_2, GPIO_DIR_OUTPUT,GPIO_PULL_NONE); GPIO_Set(GPIO_PORT_2, GPIO_LOW);
+    GPIO_Init(GPIO_PORT_3, GPIO_DIR_OUTPUT,GPIO_PULL_NONE); GPIO_Set(GPIO_PORT_3, GPIO_LOW);
+    GPIO_Init(GPIO_PORT_6, GPIO_DIR_OUTPUT,GPIO_PULL_NONE); GPIO_Set(GPIO_PORT_6, GPIO_LOW);
+    GPIO_Init(GPIO_PORT_7, GPIO_DIR_OUTPUT,GPIO_PULL_NONE); GPIO_Set(GPIO_PORT_7, GPIO_LOW);
+#endif
+//    
+//    GPIO_Init(GPIO_PORT_8, GPIO_DIR_OUTPUT,GPIO_PULL_NONE);
+//    GPIO_Set(GPIO_PORT_8, GPIO_LOW);
+//
+//#if LIN_STACK_TYPE == LIN_STACK_TYPE_LIN2_2A
+//    if(GPIO_SFRS->GPIO_CFG[(uint8_t)GPIO_PORT_1].ACTDET != 0U){
+//        GPIO_SFRS->GPIO_CFG[(uint8_t)GPIO_PORT_1].CLR = 1U;
+//        LINS_EventTriggered_ISR();
+//    }
+//    GPIO_RegisterIRQ(GPIO_PORT_1, GPIO_EDGE_FALLING, LINS_EventTriggered_ISR);
+//#endif
 }
 
 
@@ -70,8 +81,14 @@ void pmu_init(void)
 
 void SYS_Init(void)
 {
+    SYSCTRLA_SFRS->DEBUG_ACCESS_KEY.DEBUG_ACCESS_KEY = 0x05U;
+    SYSCTRLA_SFRS->PMU_ACCESS_KEY.PMU_ACCESS_KEY = 0x0AU;
+    SYSCTRLA_SFRS->TRIM_ACCESS_KEY.TRIM_ACCESS_KEY = 0x0E;
+    PMUAPRE5V_SFRS->CFG_ACCESS.CFG_ACCESS_KEY = 0x0B;
+  
     /* Enable trim revise access enable*/
     HWCFG_TrimAccessUnlock();
+    CRGA_SFRS->MODULERSTREQ = 0xFBU;
     /* Init system clock */
     Clock_SystemMainClockInit(SYS_MAIN_CLOCK_DIV);
     pmu_init();

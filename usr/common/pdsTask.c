@@ -31,7 +31,7 @@ uint8_t pds_store(uint8_t index);
 
 static SystemParams_t systemParam;
 static TaskState_t pdsState = TASK_STATE_INIT;
-static PdsStatus_t pdsStatus = PDS_STATUS_USING_NORMAL;
+static PdsStatus_t pdsStatus = PDS_STATUS_USING_DEFAULT;
 
 #define PDS_ACTIVE_DATA_INDEX           (0U)
 #define PDS_ACTIVE_DATA_BACKUP_INDEX    (1U)
@@ -46,15 +46,6 @@ void PDS_Init(void)
     if (crcValue == param->head.crc32){
         systemParam = *param;
         pdsStatus = PDS_STATUS_USING_NORMAL;
-    }else{
-        param = (SystemParams_t *)FLASH_START_ADDRESS_SYSTEM_DATA_BACK_UP;
-        crcValue = CRC32_GetRunTimeCRC32((uint8_t *)&param->info ,(uint16_t)sizeof(param->info));
-        if (crcValue == param->head.crc32){
-            systemParam = *param;
-            pdsStatus = PDS_STATUS_USING_BACKUP;
-        }else{
-            pdsStatus = PDS_STATUS_USING_DEFAULT;
-        }
     }
     if (pdsStatus == PDS_STATUS_USING_DEFAULT){
 /*  **********************fix LIN configuration default value ************************************/
@@ -110,28 +101,30 @@ uint8_t pds_store(uint8_t index)
     uint32_t crcValue = CRC32_GetRunTimeCRC32((uint8_t *)(&systemParam.info) ,(uint16_t)sizeof(systemParam.info));
     systemParam.head.crc32 = crcValue;
     systemParam.head.index ++;
-    
     /*  sizeof(SystemParams_t) is the timers of word     */
     wordLength = ((uint16_t)sizeof(SystemParams_t) >> 2U);
-
-    pdsStatus = PDS_STATUS_USING_NORMAL;
     
+    pdsStatus = PDS_STATUS_USING_NORMAL;
+
     if (index == PDS_ACTIVE_DATA_INDEX){
         /*write sys data normal*/
         Flash_EraseSector(FLASH_START_ADDRESS_SYSTEM_DATA);
+        Flash_EraseSector(FLASH_START_ADDRESS_SYSTEM_DATA + 512U);
+        Flash_EraseSector(FLASH_START_ADDRESS_SYSTEM_DATA + 1024U);
         for (uint32_t i = 0; i < wordLength; i++){
             Flash_WriteWord(FLASH_START_ADDRESS_SYSTEM_DATA+i*4U,pWord[i]);
         }
     }else{
         /*write sys data back up*/
         Flash_EraseSector(FLASH_START_ADDRESS_SYSTEM_DATA_BACK_UP);
+        Flash_EraseSector(FLASH_START_ADDRESS_SYSTEM_DATA_BACK_UP + 512U);
+        Flash_EraseSector(FLASH_START_ADDRESS_SYSTEM_DATA_BACK_UP + 1024U);
         for (uint32_t i = 0; i < wordLength; i++){
             Flash_WriteWord(FLASH_START_ADDRESS_SYSTEM_DATA_BACK_UP+i*4U,pWord[i]);
         }
     }
     return 0U;
 }
-
 
 
 LedClusterParams_t *PDS_GetLedParam(void)
@@ -174,6 +167,7 @@ void PDS_TaskHandler(void)
       break;
     }
 }
+
 
 
 

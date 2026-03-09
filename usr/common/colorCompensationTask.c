@@ -81,22 +81,8 @@ void doColorCompensationHandle(void)
             case COLOR_MODE_sRGB_ABS_L:
               (void)CLM_SetSRGBAbsL((LedNum_t)ledNo,MES_GetLedTemperature((LedNum_t)ledNo), color->RGBL.red, color->RGBL.green, color->RGBL.blue,color->RGBL.level,COLOR_COMP_DIMMING_INTERVAL);
               break;
-            case COLOR_MODE_ACCURATE_XYY:
-              (void)CLM_SetAccurateXYY((LedNum_t)ledNo,color->iRatio, MES_GetLedTemperature((LedNum_t)ledNo), color->XYY.x, color->XYY.y, (uint8_t)color->XYY.Y, COLOR_COMP_DIMMING_INTERVAL);
-              break;
             case COLOR_MODE_RGBL:
               (void)CLM_SetRGBL((LedNum_t)ledNo,MES_GetLedTemperature((LedNum_t)ledNo), color->RGBL.red, color->RGBL.green, color->RGBL.blue,color->RGBL.level,COLOR_COMP_DIMMING_INTERVAL);
-              break;
-            case COLOR_MODE_ACCURATE_RGBL:
-              (void)CLM_SetAccurateRGBL((LedNum_t)ledNo,color->iRatio,MES_GetLedTemperature((LedNum_t)ledNo), color->RGBL.red, color->RGBL.green, color->RGBL.blue,(uint8_t)color->RGBL.level,COLOR_COMP_DIMMING_INTERVAL);
-              break;
-
-            case COLOR_MODE_ACCURATE_sRGBL:
-              (void)CLM_SetAccurateSRGBL((LedNum_t)ledNo,color->iRatio,MES_GetLedTemperature((LedNum_t)ledNo), color->RGBL.red, color->RGBL.green, color->RGBL.blue,(uint8_t)color->RGBL.level,COLOR_COMP_DIMMING_INTERVAL);
-              break;
-
-            case COLOR_MODE_ACCURATE_LUV:
-              (void)CLM_SetAccurateLUV((LedNum_t)ledNo,color->iRatio,MES_GetLedTemperature((LedNum_t)ledNo), color->LUV.u, color->LUV.v, (uint8_t)color->LUV.L, COLOR_COMP_DIMMING_INTERVAL);
               break;
             case COLOR_MODE_RGB:
               (void)CLM_SetRGB((LedNum_t)ledNo,MES_GetLedTemperature((LedNum_t)ledNo), color->RGB.red, color->RGB.green, color->RGB.blue,COLOR_COMP_DIMMING_INTERVAL);

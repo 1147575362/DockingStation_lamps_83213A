@@ -16,7 +16,6 @@ CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, COST OF PROCUREMENT OF
 SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 (INCLUDING BUT NOT LIMITED TO ANY DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 *************************************************************************************/
-
 #include <appConfig.h>
 
 #if (LED_NUM <= 8U)
@@ -48,11 +47,9 @@ void ADC_Handler(void)
         if((adcResult[3]&0x800U) == 0x800U){
           adcResult[3] = 0;
         }        
-        
+
         adcCallback(adcMeasParamm, adcResult);
     }
-    
-
     SAR_CTRL_SFRS->SAR_INT.CLEAR.INT_SAR_DONE_CLR = 1U;
     SAR_CTRL_SFRS->SAR_CTRL.SAR_ENA_REQ = 0U;
 }
@@ -69,7 +66,7 @@ void ADC_GeneralInit(void)
     SAR_CTRL_SFRS->SAR_CFG2.TRIG_DLY            = 4U;         /* 0.25us/count @4MHz*/
     SAR_CTRL_SFRS->SAR_CFG2.TRIG_DLY_TS         = 32U;
 
-    SAR_CTRL_SFRS->SAR_CFG0.SAR_INPUT_MODE_CH1  = (uint8_t)ADC_AFE_INPUT_INP_EXT_INN_EXT;     /* LED PN/PTAT of Buck          */
+    SAR_CTRL_SFRS->SAR_CFG0.SAR_INPUT_MODE_CH1  = (uint8_t)ADC_AFE_INPUT_INP_BUF_INN_BUF;     /* LED PN/PTAT of Buck          */
     SAR_CTRL_SFRS->SAR_CFG0.SAR_INPUT_MODE_CH2  = (uint8_t)ADC_AFE_INPUT_INP_BUF_INN_EXT;     /* VBAT                         */
     SAR_CTRL_SFRS->SAR_CFG0.SAR_INPUT_MODE_CH3  = (uint8_t)ADC_AFE_INPUT_INP_BUF_INN_EXT;     /* VBUCK                        */
     SAR_CTRL_SFRS->SAR_CFG0.SAR_INPUT_MODE_CH4  = (uint8_t)ADC_AFE_INPUT_INP_BUF_INN_BUF;     /* PTAT of LED                  */
@@ -154,7 +151,7 @@ void ADC_Init(AdcMeasureItem_t item, uint8_t channel, LedType_t type, AdcTrigger
       IOCTRLA_SFRS->LEDPIN.VFW_ENA      = 1U;           /* Enable 2mA led current source */
       IOCTRLA_SFRS->LEDPIN.SENSE_ENA    = 1U;           /* LED Forward Voltage Sense Enable. Set to enable LED forward voltage sense module.*/
       
-      SAR_CTRL_SFRS->SAR_CFG0.SAR_INPUT_MODE_CH1= (uint8_t)ADC_AFE_INPUT_INP_EXT_INN_EXT;    
+      SAR_CTRL_SFRS->SAR_CFG0.SAR_INPUT_MODE_CH1= (uint8_t)ADC_AFE_INPUT_INP_BUF_INN_BUF;    
       SAR_CTRL_SFRS->SAR_CFG0.ADC_VREF_SEL_CH1  = (uint8_t)ADC_REF_VBG_2TIMES;
       SAR_CTRL_SFRS->SAR_CFG0.SAR_INPUT_GAIN_CH1= (uint8_t)ADC_AFE_GAIN_31_OF_32;
       SAR_CTRL_SFRS->SAR_CFG1.SAMPCYC_CH1       = 5U;/* 0.25us/count @4MHz*/

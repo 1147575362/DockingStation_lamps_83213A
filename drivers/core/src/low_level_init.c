@@ -53,7 +53,7 @@ __interwork int __low_level_init(void)
     uint16_t rev = SYSCTRLA_SFRS->REV;
     /*  REV = "A1" or "A2"  is RugbyHP, not RugbyHP CS01 */
     uint32_t name = SYSCTRLA_SFRS->NAME;
-    if ( (name != 0x52474850U) || ( name == 0x52474850U && rev == 0x4132U ) ){
+    if ( (name != 0x52474850U) || ( name == 0x52474850U && ( rev == 0x4132U ) ) ){
         /* invalid chip id*/
         for(;;){}
     }

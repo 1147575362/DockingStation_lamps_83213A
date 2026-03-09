@@ -32,13 +32,15 @@ void BUCK_Init(BuckOutputVoltage_t enumBuckVolt)
 {
     /* Comment the BUCKOPT_SetBuckFreq function for mass production */
     uint16_t version = HWCFG_GetFlashMapVersion();
-    if (version < 0xA0U || version == 0xFFFFU){
+    if ( (version < 0xA0U) || (version == 0xFFFFU) ){
         BUCKOPT_Init();
         BUCKOPT_SetBuckFreq((uint8_t)BUCK_FREQ_400KHz);
     }
     
     BUCK_INF_SFRS->BUCK_CFG2.SET_VOUT_PD = 1U;
+    
     BUCK_INF_SFRS->BUCK_CFG0.VDAC_TRIM          = (uint8_t)enumBuckVolt;
+
     
     BUCK_INF_SFRS->BUCK_CFG0.RAMP_UPDATE = 0x1U; 
     while(BUCK_INF_SFRS->BUCK_CFG0.RAMP_UPDATE == 1U){}  

@@ -14,12 +14,12 @@ void ADC_GeneralInit(void)
 #else
     #error MAIN_CPU_CLOCK MUST BE at 16MHz system colck!
 #endif 
-
+  
     SAR_CTRL_SFRS->SAR_CTRL.TRIGSEL             = (uint8_t)ADC_TRIGGER_SOURCE_SOFT_INPUT;
     SAR_CTRL_SFRS->SAR_CFG2.TRIG_DLY            = 4U;         /* 0.25us/count @4MHz*/
     SAR_CTRL_SFRS->SAR_CFG2.TRIG_DLY_TS         = 32U;
 
-    SAR_CTRL_SFRS->SAR_CFG0.SAR_INPUT_MODE_CH1  = (uint8_t)ADC_AFE_INPUT_INP_EXT_INN_EXT;     /* LED PN/PTAT of Buck     */
+    SAR_CTRL_SFRS->SAR_CFG0.SAR_INPUT_MODE_CH1  = (uint8_t)ADC_AFE_INPUT_INP_BUF_INN_BUF;     /* LED PN/PTAT of Buck     */
     SAR_CTRL_SFRS->SAR_CFG0.SAR_INPUT_MODE_CH2  = (uint8_t)ADC_AFE_INPUT_INP_BUF_INN_EXT;     /* VBAT                    */
     SAR_CTRL_SFRS->SAR_CFG0.SAR_INPUT_MODE_CH3  = (uint8_t)ADC_AFE_INPUT_INP_BUF_INN_EXT;     /* VBUCK                   */
     SAR_CTRL_SFRS->SAR_CFG0.SAR_INPUT_MODE_CH4  = (uint8_t)ADC_AFE_INPUT_INP_BUF_INN_BUF;     /* PTAT of LED             */
@@ -44,8 +44,8 @@ void ADC_GeneralInit(void)
     IOCTRLA_SFRS->LEDPIN.GAIN_SEL               = (uint8_t)ADC_LED_GAIN_2_OF_5;
     SAR_CTRL_SFRS->SAR_CHAN_CFG.TEST_BATTERY_GAIN_CHOOSE = (uint8_t)ADC_VBAT_GAIN_1_OF_14;
     
-    SAR_CTRL_SFRS->OT_CTRL_CFG.ADC_SAMP_OT_ENA  = 1U;
-    SAR_CTRL_SFRS->OT_CTRL_CFG.EN_OVERTEMP      = 1U;
+    SAR_CTRL_SFRS->OT_CTRL_CFG.ADC_SAMP_OT_ENA = 1U;
+    SAR_CTRL_SFRS->OT_CTRL_CFG.EN_OVERTEMP = 1U;
     
     SAR_CTRL_SFRS->SAR_CTRL.SAR_AFE_EN          = 1U;
     SAR_CTRL_SFRS->SAR_CTRL.SAR_PREAMP_EN       = 1U;
@@ -61,7 +61,7 @@ void ADC_GeneralInit(void)
     SAR_CTRL_SFRS->SAR_CHAN_CFG.CH3_SEL       = (uint8_t)ADC_CH_SEL_VBUCK_GND;
     SAR_CTRL_SFRS->SAR_CHAN_CFG.CH4_SEL       = (uint8_t)ADC_CH_SEL_PTAT_DIFF;
     SAR_CTRL_SFRS->SAR_CHAN_CFG.CHAN_SEQ_NUM  = (uint8_t)ADC_SQ_CH1_CH2_CH3_CH4;
-  
+    
     SAR_CTRL_SFRS->SAR_CTRL.TRIGSEL             = (uint8_t)ADC_TRIGGER_SOURCE_PWM_PERIOD;
     
     ADC_RegisterIRQ(NULL);

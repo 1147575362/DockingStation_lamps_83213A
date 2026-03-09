@@ -25,6 +25,11 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include <rugbyHP.h>
 #include <hwcfg.h>
 
+/* PN voltage measurement*/
+#define MAX_MEASURE_TIME_TICKS          (MAIN_CPU_CLOCK * 128U)   /* us  */
+#define MAX_DEBUNCE_TIME_TICKS          (MAIN_CPU_CLOCK * 10U)    /* us  */
+
+
 typedef void (*PwmIsrCallback_t)(void);
 
 typedef enum{
@@ -97,6 +102,8 @@ void PWM_Reset(void);
 uint8_t PWM_UpdateFinished(void);
 uint8_t PWM_LedIsOn(uint8_t ledNo);
 
+uint8_t PWM_GetPhyLedIndex(uint8_t no);
+void PWM_GetStaticPNVolt(uint8_t ledNo, uint16_t *pnRVolt,uint16_t *pnGVolt,uint16_t *pnBVolt);
 
 uint16_t ADC_GetLedPNCode(uint8_t ledNo, uint16_t *pnCodeR,uint16_t *pnCodeG,uint16_t *pnCodeB);
 uint16_t ADC_GetVBuckCode(void);

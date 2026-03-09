@@ -298,7 +298,7 @@ void UnconditionalPublishedCmdsISR(LIN_Device_Frame_t *const frame)
         frame->data[2] = ls_read_error_code_log();
         for (uint8_t i = 3U; i < LIN_BUFF_SIZE; i++){
             frame->data[i] = 0xFFU;
-        }           
+        }
     }else if (frame->frame_id == UnconditionalCmdsTable[USER_DATA_REPORT_INDEX].frame_id){
         /* user defined data report */
         frame->data[0] = (APPL_GetLEDState()) | (eventTriggeredLedOn << 1U) | 0xF8U;
@@ -368,6 +368,11 @@ void LINS_TaskHandler(void)
       (void)ls_set_lins_rx_glitch_filter_3rd(0x28U,0x28U);
       (void)l_sys_init();
       (void)ls_disable_lin_auto_sleep(TRUE);
+//      if(GPIO_SFRS->GPIO_CFG[(uint8_t)GPIO_PORT_2].ACTDET != 0U){
+//          GPIO_SFRS->GPIO_CFG[(uint8_t)GPIO_PORT_2].CLR = 1U;
+//          LINS_SendWakeUpSignal_ISR();
+//      }
+//      GPIO_RegisterIRQ(GPIO_PORT_2, GPIO_EDGE_FALLING, LINS_SendWakeUpSignal_ISR);
       linsTaskState = TASK_STATE_ACTIVE;
       break;
     default:

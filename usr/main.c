@@ -6,14 +6,11 @@
 
 void main(void)
 {
-#if ENABLE_FUNCTION_VALIDATION == 1
-    validation_main();
-#endif
     /* !!!!!!!MUST BE called firstly here for initializing system parameters !!!!*/
     PDS_Init();
     /* System init for hardwre init */
     SYS_Init();
-    /* System main infinite loop    */
+    /* system main infinite loop */
     for(;;){
         TM_RunTasks();
     }
